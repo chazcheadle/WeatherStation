@@ -1,21 +1,65 @@
-int pin = 13;
-volatile int state = LOW;
+// Initialize global variables.
+// Set digital pin 13 as the LED output (use on board LED).
 
+#define ANEMOMETER_PIN 2
+#define CALCULATE_WINDSPEED_INTERVAL 1000
+#define LED_PIN 13
+//int ledPin = 13;
+volatile int state = LOW;
+// Create global variable to store the number of revolutions
+// of the anemometer.
+volatile int numRevsAnemometer = 0;
+unsigned long nextWindSpeedCalc;
+unsigned long time;
+
+// Setup pins and variables.
 void setup()
 {
+  // Set up serial port at 9600 baud for reporting status.
   Serial.begin(9600);
-  pinMode(pin, OUTPUT);
-  attachInterrupt(0, blink, FALLING);
+  // Set the LED pin as an output.
+  pinMode(LED_PIN, OUTPUT);
+  // Set anemometer pin as an input.
+  // I don't know if this is necessary with attachInterrupt.
+  pinMode(ANEMOMETER_PIN, INPUT);
+  // Set internal pull-up resistor.
+  digitalWrite(ANEMOMETER_PIN, HIGH);
+  // Set up digital pin 2 to respond to hardware interrupts on
+  // falling side of a signal. the 'blink' function is set as
+  // the callback and runs on each trigger.
+  attachInterrupt(0, countAnemometer, FALLING);
 }
 
+// Main loop for program.
 void loop()
 {
-  digitalWrite(pin, state);
+   time = millis();
+
+   if (time >= nextWindSpeedCalc) {
+      calculateWindSpeed();
+      nextWindSpeedCalc = time + CALCULATE_WINDSPEED_INTERVAL;
+   }
 }
 
-void blink()
+/**
+ * Calculate wind speed.
+ *
+ * Turn on anemometer interrupt to count revolutions for a given period of time.
+ * Use this count to calculate the wind speed.
+ */
+void calculateWindSpeed()
 {
-  state = !state;
-  Serial.println("Click");
+   Serial.println(numRevsAnemometer);
+   numRevsAnemometer = 0;
 }
 
+// Callback for anemometer interrupt
+void countAnemometer()
+{
+  // Increment the revolution counter.
+  numRevsAnemometer++;
+  // Set the global state variable to the opposite of what it was.
+  state = !state;
+  // Turn on or off LED based on what the global value of state is.
+  digitalWrite(LED_PIN, state);
+}
