@@ -3,8 +3,8 @@
 
 #define ANEMOMETER_PIN 2
 #define WIND_DIRECTION_PIN 0
-#define CALCULATE_WINDSPEED_INTERVAL 1000
-#define CALCULATE_WINDDIR_INTERVAL 1000
+#define CALCULATE_WINDSPEED_INTERVAL 5000
+#define CALCULATE_WINDDIR_INTERVAL 5000
 #define LED_PIN 13
 //int ledPin = 13;
 volatile int state = LOW;
@@ -43,8 +43,8 @@ void loop()
       nextWindSpeedCalc = time + CALCULATE_WINDSPEED_INTERVAL;
    }
    if (time >= nextWindDirCalc) {
-      calculateWindDir();
-      nextWindSpeedCalc = time + CALCULATE_WINDDIR_INTERVAL;
+   //   calculateWindDir();
+      nextWindDirCalc = time + CALCULATE_WINDDIR_INTERVAL;
    }
 }
 
@@ -56,8 +56,21 @@ void loop()
  */
 void calculateWindSpeed()
 {
+   long speed = 1492;
+   int mph, kts;
+   
    Serial.println(numRevsAnemometer);
-   numRevsAnemometer = 0;
+   speed *= numRevsAnemometer;
+   mph = speed / CALCULATE_WINDSPEED_INTERVAL;
+   kts = mph * .869;
+   Serial.print("Wind speed: ");
+   Serial.print(mph);
+   Serial.print("mph / ");
+   Serial.print(kts);
+   Serial.println("kts");
+ 
+
+   numRevsAnemometer = 0;        // Reset counter
 }
 
 /**
