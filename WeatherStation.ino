@@ -43,7 +43,7 @@ void loop()
       nextWindSpeedCalc = time + CALCULATE_WINDSPEED_INTERVAL;
    }
    if (time >= nextWindDirCalc) {
-   //   calculateWindDir();
+      calculateWindDir();
       nextWindDirCalc = time + CALCULATE_WINDDIR_INTERVAL;
    }
 }
@@ -59,7 +59,7 @@ void calculateWindSpeed()
    long speed = 1492;
    int mph, kts;
    
-   Serial.println(numRevsAnemometer);
+//   Serial.println(numRevsAnemometer);
    speed *= numRevsAnemometer;
    mph = speed / CALCULATE_WINDSPEED_INTERVAL;
    kts = mph * .869;
@@ -82,7 +82,8 @@ void calculateWindDir()
   dirVal = analogRead(WIND_DIRECTION_PIN);
   dirVal >>=2;
   
-  Serial.println("WIND DIRECTION");
+  Serial.print("WIND DIRECTION: ");
+  Serial.println(dirVal);
 }
 
 // Callback for anemometer interrupt
